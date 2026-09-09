@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interlock Paver Calculator | krprojects</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --dark: #0f172a;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --success-bg: #ecfdf5;
+            --success-border: #a7f3d0;
+            --success-text: #065f46;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Noto Sans Sinhala', sans-serif;
+            background-color: var(--bg);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Navigation Header */
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 18px 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Hamburger Menu Button */
+        .menu-btn {
+            font-size: 22px;
+            background: none;
+            border: none;
+            color: #60a5fa;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span {
+            color: #60a5fa;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #cbd5e1;
+        }
+
+        /* Side Drawer Menu */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 270px;
+            height: 100%;
+            background-color: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            padding-top: 80px;
+        }
+
+        .drawer.open {
+            left: 0;
+        }
+
+        .drawer a {
+            display: flex;
+            align-items: center;
+            padding: 16px 30px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .drawer a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #60a5fa;
+            border-left: 4px solid #3b82f6;
+            padding-left: 36px;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Main Container */
+        main.container {
+            flex: 1;
+            max-width: 680px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .calculator-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 0 1px 1px rgba(0, 0, 0, 0.02);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-header {
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        .card-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--dark);
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .card-header p {
+            color: var(--slate-600);
+            font-size: 14px;
+        }
+
+        /* Section Title Styling */
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-block {
+            background: #fafafa;
+            border: 1px solid #f1f5f9;
+            padding: 20px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Form Grid */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 520px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .calculator-card {
+                padding: 20px;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark);
+            background-color: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* Action Button */
+        button.btn-calc {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+            color: #ffffff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+            margin-top: 10px;
+        }
+
+        button.btn-calc:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        button.btn-calc:active {
+            transform: translateY(0);
+        }
+
+        /* Result Section */
+        .result-box {
+            margin-top: 28px;
+            padding: 24px;
+            background: var(--success-bg);
+            border: 1.5px solid var(--success-border);
+            border-radius: 16px;
+            display: none;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--success-text);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(167, 243, 208, 0.5);
+            font-size: 14.5px;
+            color: #1e293b;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-total {
+            margin-top: 12px;
+            padding-top: 16px;
+            border-top: 2px dashed #86efac;
+            font-size: 19px;
+            font-weight: 800;
+            color: #065f46;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: #94a3b8;
+            text-align: center;
+            padding: 24px;
+            font-size: 13px;
+            margin-top: auto;
+        }
+
+        footer strong {
+            color: #ffffff;
+        }
+
+        footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-container">
+                <button class="menu-btn" onclick="toggleDrawer()">&#9776;</button>
+                <div class="logo">
+                    KR<span>PROJECTS</span>
+                </div>
+            </div>
+            <div class="badge">Engineering Tools</div>
+        </div>
+    </header>
+
+    <!-- Side Drawer Menu -->
+    <div class="drawer" id="sideDrawer">
+        <a href="index.html">මුල් පිටුව</a>
+        <a href="About.html">අප පිළිබඳව</a>
+        <a href="Contact.html">විමසීම්</a>
+        <a href="https://wa.me/" target="_blank">Whatsapp</a>
+        <a href="https://facebook.com" target="_blank">Facebook</a>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
+
+    <main class="container">
+        <div class="calculator-card">
+            
+            <div class="card-header">
+                <h1>ඉන්ටර්ලොක් ගණනය කිරීම</h1>
+                <p>ඔබගේ මිදුලට අවශ්‍ය කැටගල් ප්‍රමාණය සහ වැයවන මුදල පහසුවෙන් ගණනය කරන්න</p>
+            </div>
+
+            <form id="pavingForm">
+                
+                <!-- 1. මිදුලේ මිනුම් -->
+                <div class="section-block">
+                    <div class="section-title"> 1. මිදුලේ මිනුම් ඇතුළත් කරන්න</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="length">දිග (අඩි / Feet):</label>
+                            <input type="number" id="length" placeholder="උදා: 20" step="any" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="width">පළල (අඩි / Feet):</label>
+                            <input type="number" id="width" placeholder="උදා: 15" step="any" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. කැටගලේ මිල -->
+                <div class="section-block">
+                    <div class="section-title"> 2. කැටගලෙහි මිල</div>
+                    <div class="form-group">
+                        <label for="unitPrice">එක් කැටගලක මිල (රුපියල්):</label>
+                        <input type="number" id="unitPrice" placeholder="උදා: 85" step="any" required>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-calc" onclick="calculatePaving()">ගණනය කරන්න</button>
+            </form>
+
+            <!-- ප්‍රතිඵල පෙන්වන කොටස -->
+            <div class="result-box" id="results">
+                <div class="result-title">
+                    ✅ ගණනය කිරීමේ සාරාංශය
+                </div>
+                
+                <div class="result-item">
+                    <span>මිදුලේ මුළු වර්ගඵලය:</span>
+                    <strong id="resArea">0 Sq.ft</strong>
+                </div>
+                <div class="result-item">
+                    <span>අවශ්‍ය මුළු කැටගල් ගණන <small style="color:#64748b;">(10% කැපීම් ඇතුළුව)</small>:</span>
+                    <strong id="resTotalBlocks">0 blocks</strong>
+                </div>
+
+                <div class="result-item result-total">
+                    <span>කැටගල් සඳහා වන මුළු මුදල:</span>
+                    <span id="resGrandTotal">Rs. 0.00</span>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 <strong>krprojects Development</strong>. All rights reserved.</p>
+        <p style="margin-top:8px;">
+            <a href="About.html">ABOUT US</a> | 
+            <a href="#">PRIVACY POLICY</a>
+        </p>
+    </footer>
+
+    <script>
+        function toggleDrawer() {
+            document.getElementById('sideDrawer').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function calculatePaving() {
+            const length = parseFloat(document.getElementById('length').value);
+            const width = parseFloat(document.getElementById('width').value);
+            const unitPrice = parseFloat(document.getElementById('unitPrice').value);
+
+            if (isNaN(length) || isNaN(width) || length <= 0 || width <= 0) {
+                alert("කරුණාකර නිවැරදි දිග සහ පළල ඇතුළත් කරන්න.");
+                return;
+            }
+
+            if (isNaN(unitPrice) || unitPrice <= 0) {
+                alert("කරුණාකර කැටගලෙහි මිල ඇතුළත් කරන්න.");
+                return;
+            }
+
+            // වර්ගඵලය ගණනය (දිග x පළල)
+            const totalArea = length * width;
+            
+            // වර්ග අඩියකට කැටගල් 4.5 බැගින් ගණනය කර 10%ක් එකතු කිරීම (Wastage)
+            const baseBlocks = totalArea * 4.5;
+            const totalBlocksWithWastage = Math.ceil(baseBlocks * 1.10);
+            
+            // මුළු මුදල ගණනය
+            const totalBlockCost = totalBlocksWithWastage * unitPrice;
+
+            document.getElementById('resArea').innerText = totalArea.toFixed(2) + " Sq.ft";
+            document.getElementById('resTotalBlocks').innerText = totalBlocksWithWastage.toLocaleString() + " blocks";
+            document.getElementById('resGrandTotal').innerText = "Rs. " + totalBlockCost.toLocaleString('en-US', {minimumFractionDigits: 2});
+
+            document.getElementById('results').style.display = 'block';
+            
+            // Smooth Scroll to Results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

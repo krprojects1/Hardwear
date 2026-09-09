@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ටයිල් ගණනය කරනය - KRPROJECTS Engineering Tools</title>
+    <!-- Google Font for Sri Lankan Sinhala & Clean Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #3b82f6;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --focus-ring: rgba(37, 99, 235, 0.25);
+            --success-color: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Noto Sans Sinhala', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-bottom: 20px;
+            color: var(--text-dark);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Top Header / Title Bar */
+        header {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 16px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Hamburger Menu Button */
+        .menu-btn {
+            font-size: 22px;
+            background: none;
+            border: none;
+            color: #60a5fa;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .logo {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo span {
+            color: #60a5fa;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        /* Side Drawer Menu */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 270px;
+            height: 100%;
+            background-color: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            padding-top: 80px;
+        }
+
+        .drawer.open {
+            left: 0;
+        }
+
+        .drawer a {
+            display: flex;
+            align-items: center;
+            padding: 16px 30px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .drawer a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #60a5fa;
+            border-left: 4px solid #3b82f6;
+            padding-left: 36px;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Background Animated Glow Effects */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        body::before {
+            background: #3b82f6;
+            top: 10%;
+            left: 15%;
+        }
+
+        body::after {
+            background: #8b5cf6;
+            bottom: 10%;
+            right: 15%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 35px 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+        }
+
+        .header {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .header h2 {
+            color: var(--text-dark);
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #334155;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .input-flex {
+            display: flex;
+            gap: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-dark);
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--focus-ring);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 36px;
+        }
+
+        .unit-select {
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .calc-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        .calc-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Result Section Design */
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: left;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .result-card {
+            background: #ffffff;
+            padding: 12px 14px;
+            border-radius: 8px;
+            border: 1px solid #edf2f7;
+            text-align: center;
+        }
+
+        .result-card.full-width {
+            grid-column: span 2;
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .result-card .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .result-card .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .result-card.full-width .value {
+            color: var(--success-color);
+            font-size: 22px;
+        }
+
+        .note {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Footer Style */
+        footer {
+            margin-top: 35px;
+            color: #94a3b8;
+            font-size: 13px;
+            z-index: 1;
+            text-align: center;
+        }
+
+        footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header / Title Bar -->
+<header>
+    <div class="header-container">
+        <div class="logo-container">
+            <button class="menu-btn" onclick="toggleDrawer()">&#9776;</button>
+            <div class="logo">
+                KR<span>PROJECTS</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="badge">Engineering Tools</div>
+        </div>
+    </div>
+</header>
+
+<!-- Side Drawer Menu -->
+<div class="drawer" id="sideDrawer">
+    <a href="index.html">මුල් පිටුව</a>
+    <a href="About.html">අප පිළිබඳව</a>
+    <a href="Contact.html">විමසීම්</a>
+    <a href="https://wa.me/" target="_blank">Whatsapp</a>
+    <a href="https://facebook.com" target="_blank">Facebook</a>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
+
+<div class="card">
+    <div class="header">
+        <h2>ටයිල් සහ වියදම් ගණනය කරනය</h2>
+        <p>Tile & Cost Calculator - ටයිල් ගණන සහ මුළු වියදම සොයාගන්න</p>
+    </div>
+
+    <!-- 1. මුළු වර්ගඵලය -->
+    <div class="input-group">
+        <label>අතුරන්න ඕන මුළු වර්ගඵලය (Total Area):</label>
+        <div class="input-flex">
+            <input type="number" id="totalArea" placeholder="උදා: 150" step="any">
+            <select id="totalAreaUnit" class="unit-select">
+                <option value="sqft">වර්ග අඩි (Sqft)</option>
+                <option value="sqm">වර්ග මීටර් (Sqm)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 2. ටයිල් කැටයේ වර්ගඵලය -->
+    <div class="input-group">
+        <label>එක් ටයිල් කැටයක වර්ගඵලය (Tile Area):</label>
+        <div class="input-flex">
+            <input type="number" id="tileArea" placeholder="උදා: 4 (අඩි 2x2 නම්)" step="any">
+            <select id="tileAreaUnit" class="unit-select">
+                <option value="sqft">වර්ග අඩි (Sqft)</option>
+                <option value="sqin">වර්ග අඟල් (Sqin)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 3. පෙට්ටියක තියෙන කැට ගණන -->
+    <div class="input-group">
+        <label>පෙට්ටියක ඇති ටයිල් කැට ගණන:</label>
+        <input type="number" id="tilesPerBox" value="4" placeholder="උදා: 4, 6">
+    </div>
+
+    <!-- 4. අමතර එකතු කිරීම (Wastage %) -->
+    <div class="input-group">
+        <label>කැපීමට සහ කැඩීමට අමතර එකතු කිරීම (Wastage):</label>
+        <select id="wastage">
+            <option value="0.05">5% (සාමාන්‍ය)</option>
+            <option value="0.10" selected>10% (නිර්දේශිත)</option>
+            <option value="0.15">15% (කැපීම් වැඩිනම්)</option>
+        </select>
+    </div>
+
+    <!-- 5. ටයිල්/පෙට්ටියක මිල -->
+    <div class="input-group">
+        <label>ටයිල් මිල (Price - Optional):</label>
+        <div class="input-flex">
+            <input type="number" id="price" placeholder="උදා: 4500" step="any">
+            <select id="priceType" class="unit-select">
+                <option value="box">පෙට්ටියකට (Per Box)</option>
+                <option value="tile">කැටයකට (Per Tile)</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculateTiles()">ගණනය කරන්න (Calculate)</button>
+
+    <!-- ප්‍රතිඵල පෙන්වන ස්ථානය -->
+    <div id="results" class="result-box">
+        <div class="result-grid">
+            <div class="result-card">
+                <div class="label">මුළු ටයිල් කැට</div>
+                <div class="value" id="totalTiles">0</div>
+            </div>
+            <div class="result-card">
+                <div class="label">අවශ්‍ය පෙට්ටි</div>
+                <div class="value" id="totalBoxes">0</div>
+            </div>
+            <div class="result-card full-width" id="costCard" style="display: none;">
+                <div class="label">අස්තමේන්තුගත මුළු වියදම (Total Cost)</div>
+                <div class="value" id="totalCost">Rs. 0.00</div>
+            </div>
+        </div>
+        <div class="note">
+            * කැපීම් සහ හානිවීම් සඳහා අමතර % ප්‍රමාණය ද ඇතුළත් කර ඇත.
+        </div>
+    </div>
+</div>
+
+<!-- Footer සෙක්ෂන් එක -->
+<footer>
+    <p>krprojects Development<br>© 2026</p>
+    <p style="margin-top:8px;">
+        <a href="About.html">ABOUT US</a> | 
+        <a href="#">PRIVACY POLICY</a>
+    </p>
+</footer>
+
+<script>
+    function toggleDrawer() {
+        document.getElementById('sideDrawer').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function calculateTiles() {
+        let totalArea = parseFloat(document.getElementById('totalArea').value);
+        let totalAreaUnit = document.getElementById('totalAreaUnit').value;
+        
+        let tileArea = parseFloat(document.getElementById('tileArea').value);
+        let tileAreaUnit = document.getElementById('tileAreaUnit').value;
+        
+        let tilesPerBox = parseInt(document.getElementById('tilesPerBox').value) || 1;
+        let wastage = parseFloat(document.getElementById('wastage').value);
+
+        let price = parseFloat(document.getElementById('price').value);
+        let priceType = document.getElementById('priceType').value;
+
+        if (!totalArea || !tileArea || totalArea <= 0 || tileArea <= 0) {
+            alert("කරුණාකර නිවැරදි වර්ගඵල අගයන් ඇතුළත් කරන්න.");
+            return;
+        }
+
+        // 1. මුළු වර්ගඵලය වර්ග අඩි වලට හරවා ගැනීම
+        let totalAreaSqft = totalArea;
+        if (totalAreaUnit === 'sqm') {
+            totalAreaSqft = totalArea * 10.7639; // 1 Sqm = 10.7639 Sqft
+        }
+
+        // 2. ටයිල් කැටයේ වර්ගඵලය වර්ග අඩි වලට හරවා ගැනීම
+        let tileAreaSqft = tileArea;
+        if (tileAreaUnit === 'sqin') {
+            tileAreaSqft = tileArea / 144; // 144 Sq Inches = 1 Sqft
+        }
+
+        // 3. නිවැරදි කැට ගණන සෙවීම
+        let exactTilesNeeded = totalAreaSqft / tileAreaSqft;
+        
+        // 4. Wastage එකතු කිරීම
+        let tilesWithWastage = exactTilesNeeded * (1 + wastage);
+        let finalTileCount = Math.ceil(tilesWithWastage);
+
+        // 5. පෙට්ටි ගණන සෙවීම
+        let boxesNeeded = Math.ceil(finalTileCount / tilesPerBox);
+
+        // ප්‍රතිඵල පෙන්වීම
+        document.getElementById('totalTiles').innerText = finalTileCount + " යි";
+        document.getElementById('totalBoxes').innerText = boxesNeeded + " යි";
+
+        // 6. මිල ගණනය කිරීම
+        let costCard = document.getElementById('costCard');
+        if (price && price > 0) {
+            let totalCostAmount = 0;
+            if (priceType === 'box') {
+                totalCostAmount = boxesNeeded * price;
+            } else {
+                totalCostAmount = finalTileCount * price;
+            }
+            
+            let formattedCost = totalCostAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            document.getElementById('totalCost').innerText = "Rs. " + formattedCost;
+            costCard.style.display = "block";
+        } else {
+            costCard.style.display = "none";
+        }
+        
+        let resultBox = document.getElementById('results');
+        resultBox.style.display = "block";
+    }
+</script>
+
+</body>
+</html>
