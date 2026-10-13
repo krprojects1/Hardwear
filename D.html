@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ටයිල් ග්‍රවුට් සහ වියදම් ගණනය කරනය - KRPROJECTS Engineering Tools</title>
+    <!-- Google Font for Sri Lankan Sinhala & Clean Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #3b82f6;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --focus-ring: rgba(37, 99, 235, 0.25);
+            --success-color: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Noto Sans Sinhala', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-bottom: 20px;
+            color: var(--text-dark);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Top Header / Title Bar */
+        header {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 16px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Hamburger Menu Button */
+        .menu-btn {
+            font-size: 22px;
+            background: none;
+            border: none;
+            color: #60a5fa;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .logo {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo span {
+            color: #60a5fa;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        /* Side Drawer Menu */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 270px;
+            height: 100%;
+            background-color: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            padding-top: 80px;
+        }
+
+        .drawer.open {
+            left: 0;
+        }
+
+        .drawer a {
+            display: flex;
+            align-items: center;
+            padding: 16px 30px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .drawer a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #60a5fa;
+            border-left: 4px solid #3b82f6;
+            padding-left: 36px;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Background Animated Glow Effects */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        body::before {
+            background: #3b82f6;
+            top: 10%;
+            left: 15%;
+        }
+
+        body::after {
+            background: #8b5cf6;
+            bottom: 10%;
+            right: 15%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 35px 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+        }
+
+        .header-card {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .header-card h2 {
+            color: var(--text-dark);
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header-card p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #334155;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .input-flex {
+            display: flex;
+            gap: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-dark);
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--focus-ring);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 36px;
+        }
+
+        .unit-select {
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .calc-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        .calc-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Result Section Design */
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: left;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .result-card {
+            background: #ffffff;
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 1px solid #edf2f7;
+            text-align: center;
+        }
+
+        .result-card.cost-card {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .result-card .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .result-card .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        .result-card.cost-card .value {
+            color: var(--success-color);
+            font-size: 22px;
+        }
+
+        .note {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Footer Style */
+        footer {
+            margin-top: 35px;
+            color: #94a3b8;
+            font-size: 13px;
+            z-index: 1;
+            text-align: center;
+        }
+
+        footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header / Title Bar -->
+<header>
+    <div class="header-container">
+        <div class="logo-container">
+            <button class="menu-btn" onclick="toggleDrawer()">&#9776;</button>
+            <div class="logo">
+                KR<span>PROJECTS</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="badge">Engineering Tools</div>
+        </div>
+    </div>
+</header>
+
+<!-- Side Drawer Menu -->
+<div class="drawer" id="sideDrawer">
+    <a href="index.html">මුල් පිටුව</a>
+    <a href="About.html">අප පිළිබඳව</a>
+    <a href="Contact.html">විමසීම්</a>
+    <a href="https://wa.me/" target="_blank">Whatsapp</a>
+    <a href="https://facebook.com" target="_blank">Facebook</a>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
+
+<div class="card">
+    <div class="header-card">
+        <h2>ටයිල් ග්‍රවුට් සහ වියදම් ගණනය කරනය</h2>
+        <p>Tile Grout & Cost Calculator - අවශ්‍ය ප්‍රමාණය සහ මුළු වියදම සොයාගන්න</p>
+    </div>
+
+    <!-- 1. මුළු වර්ගඵලය -->
+    <div class="input-group">
+        <label>අතුරන්න ඕන මුළු බිම් ප්‍රමාණය (Total Area):</label>
+        <div class="input-flex">
+            <input type="number" id="totalArea" placeholder="උදා: 200" step="any">
+            <select id="totalAreaUnit" class="unit-select">
+                <option value="sqft">වර්ග අඩි (Sqft)</option>
+                <option value="sqm">වර්ග මීටර් (Sqm)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 2. ටයිල් එකක දිග -->
+    <div class="input-group">
+        <label>ටයිල් එකක දිග (Tile Length):</label>
+        <div class="input-flex">
+            <input type="number" id="tileLength" placeholder="උදා: 600" step="any">
+            <select id="lengthUnit" class="unit-select">
+                <option value="mm">මි.මී. (mm)</option>
+                <option value="cm">සෙ.මී. (cm)</option>
+                <option value="m">මීටර් (m)</option>
+                <option value="inch">අඟල් (Inches)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 3. ටයිල් එකක පළල -->
+    <div class="input-group">
+        <label>ටයිල් එකක පළල (Tile Width):</label>
+        <div class="input-flex">
+            <input type="number" id="tileWidth" placeholder="උදා: 600" step="any">
+            <select id="widthUnit" class="unit-select">
+                <option value="mm">මි.මී. (mm)</option>
+                <option value="cm">සෙ.මී. (cm)</option>
+                <option value="m">මීටර් (m)</option>
+                <option value="inch">අඟල් (Inches)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 4. ටයිල් අතර පරතරය -->
+    <div class="input-group">
+        <label>ටයිල් අතර පරතරය (Grout Width in mm):</label>
+        <input type="number" id="groutWidth" placeholder="උදා: 2" step="any">
+    </div>
+
+    <!-- 5. ටයිල් එකේ ඝනකම -->
+    <div class="input-group">
+        <label>ටයිල් එකේ ඝනකම (Thickness in mm):</label>
+        <input type="number" id="tileThickness" placeholder="උදා: 10" step="any">
+    </div>
+
+    <!-- 6. ග්‍රවුට් මිල සහ ඒකකය -->
+    <div class="input-group">
+        <label>ග්‍රවුට් මිල (Price - Optional):</label>
+        <div class="input-flex">
+            <input type="number" id="unitPrice" placeholder="උදා: 250" step="any">
+            <select id="priceUnit" class="unit-select">
+                <option value="1kg">1 Kg එකකට</option>
+                <option value="100g">100g එකකට</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculateGrout()">ගණනය කරන්න (Calculate)</button>
+
+    <!-- ප්‍රතිඵල පෙන්වන ස්ථානය -->
+    <div id="results" class="result-box">
+        <div class="result-grid">
+            <div class="result-card">
+                <div class="label">අවශ්‍ය මුළු ග්‍රවුට් ප්‍රමාණය (නස්තිය සමඟ)</div>
+                <div class="value" id="finalGroutKg">0.00 කි.ග්‍රෑ.</div>
+            </div>
+
+            <div class="result-card cost-card" id="costCard" style="display: none;">
+                <div class="label">අස්තමේන්තුගත මුළු වියදම (Total Cost)</div>
+                <div class="value" id="totalCost">Rs. 0.00</div>
+            </div>
+        </div>
+        <div class="note" id="packetNote">
+            * (5 Kg හෝ 1 Kg පැකට් මිලදී ගැනීම සඳහා සලකා බලන්න)
+        </div>
+    </div>
+</div>
+
+<!-- Footer සෙක්ෂන් එක -->
+<footer>
+    <p>krprojects Development<br>© 2026</p>
+    <p style="margin-top:8px;">
+        <a href="About.html">ABOUT US</a> | 
+        <a href="#">PRIVACY POLICY</a>
+    </p>
+</footer>
+
+<script>
+    function toggleDrawer() {
+        document.getElementById('sideDrawer').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function calculateGrout() {
+        let area = parseFloat(document.getElementById('totalArea').value);
+        let areaUnit = document.getElementById('totalAreaUnit').value;
+        
+        let tLen = parseFloat(document.getElementById('tileLength').value);
+        let tLenUnit = document.getElementById('lengthUnit').value;
+        
+        let tWid = parseFloat(document.getElementById('tileWidth').value);
+        let tWidUnit = document.getElementById('widthUnit').value;
+        
+        let gWid = parseFloat(document.getElementById('groutWidth').value);
+        let tThick = parseFloat(document.getElementById('tileThickness').value);
+
+        let unitPrice = parseFloat(document.getElementById('unitPrice').value);
+        let priceUnit = document.getElementById('priceUnit').value;
+
+        if (!area || !tLen || !tWid || !gWid || !tThick || area <= 0 || tLen <= 0 || tWid <= 0 || gWid <= 0 || tThick <= 0) {
+            alert("කරුණාකර සියලුම මිනුම් නිවැරදිව ඇතුළත් කරන්න.");
+            return;
+        }
+
+        // 1. මුළු බිම් ප්‍රමාණය වර්ග මීටර් (sqm) බවට හැරවීම
+        let areaSqM = area;
+        if (areaUnit === 'sqft') {
+            areaSqM = area / 10.7639; // 1 Sqm = 10.7639 Sqft
+        }
+
+        // 2. ටයිල් දිග සහ පළල මිලිමීටර් (mm) බවට හැරවීම
+        if (tLenUnit === 'cm') tLen *= 10;
+        else if (tLenUnit === 'm') tLen *= 1000;
+        else if (tLenUnit === 'inch') tLen *= 25.4;
+
+        if (tWidUnit === 'cm') tWid *= 10;
+        else if (tWidUnit === 'm') tWid *= 1000;
+        else if (tWidUnit === 'inch') tWid *= 25.4;
+
+        // 3. ග්‍රවුට් ප්‍රමාණය ගණනය කිරීමේ සූත්‍රය
+        let constantFactor = 1.6; 
+        let groutKgPerSqM = ((tLen + tWid) * gWid * tThick * constantFactor) / (tLen * tWid);
+        let totalGroutKg = groutKgPerSqM * areaSqM;
+
+        // 4. 5% අපතේ යාම (Wastage) එකතු කිරීම
+        let finalKg = totalGroutKg * 1.05;
+
+        // ප්‍රතිඵල පෙන්වීම
+        document.getElementById('finalGroutKg').innerText = finalKg.toFixed(2) + " කි.ග්‍රෑ. (Kg)";
+        
+        let packetCount = Math.ceil(finalKg);
+        document.getElementById('packetNote').innerText = `* ආසන්න වශයෙන් කිලෝග්‍රෑම් ${packetCount} ක ප්‍රමාණයක් අවශ්‍ය වේ.`;
+
+        // 5. මිල සහ මුළු වියදම ගණනය කිරීම
+        let costCard = document.getElementById('costCard');
+        if (unitPrice && unitPrice > 0) {
+            let pricePerKg = 0;
+
+            if (priceUnit === '1kg') {
+                pricePerKg = unitPrice;
+            } else if (priceUnit === '100g') {
+                pricePerKg = unitPrice * 10; // 100g මිල 10 කින් ගුණ කළ විට 1kg මිල ලැබේ
+            }
+
+            let totalCostAmount = finalKg * pricePerKg;
+
+            let formattedCost = totalCostAmount.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            document.getElementById('totalCost').innerText = "Rs. " + formattedCost;
+            costCard.style.display = "block";
+        } else {
+            costCard.style.display = "none";
+        }
+
+        let resultBox = document.getElementById('results');
+        resultBox.style.display = "block";
+    }
+</script>
+
+</body>
+</html>

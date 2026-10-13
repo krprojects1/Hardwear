@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>සිවිලින් සහ බෝට් මිල ගණනය කරනය - KRPROJECTS Engineering Tools</title>
+    <!-- Google Fonts for Sri Lankan Sinhala & Clean Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --accent: #3b82f6;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --focus-ring: rgba(37, 99, 235, 0.25);
+            --success-color: #16a34a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Noto Sans Sinhala', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-bottom: 20px;
+            color: var(--text-dark);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Top Header / Title Bar */
+        header {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 16px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-container {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Hamburger Menu Button */
+        .menu-btn {
+            font-size: 22px;
+            background: none;
+            border: none;
+            color: #60a5fa;
+            cursor: pointer;
+            line-height: 1;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .menu-btn:hover {
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .logo {
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo span {
+            color: #60a5fa;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        /* Side Drawer Menu */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 270px;
+            height: 100%;
+            background-color: #0f172a;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.5);
+            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            padding-top: 80px;
+        }
+
+        .drawer.open {
+            left: 0;
+        }
+
+        .drawer a {
+            display: flex;
+            align-items: center;
+            padding: 16px 30px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+            transition: all 0.25s ease;
+        }
+
+        .drawer a:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #60a5fa;
+            border-left: 4px solid #3b82f6;
+            padding-left: 36px;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Background Animated Glow Effects */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        body::before {
+            background: #3b82f6;
+            top: 10%;
+            left: 15%;
+        }
+
+        body::after {
+            background: #8b5cf6;
+            bottom: 10%;
+            right: 15%;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 35px 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+            margin-top: 40px;
+        }
+
+        .header-card {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .header-card h2 {
+            color: var(--text-dark);
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header-card p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #334155;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .input-flex {
+            display: flex;
+            gap: 8px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-dark);
+            background-color: #ffffff;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--focus-ring);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 36px;
+        }
+
+        .calc-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .calc-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        .calc-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Result Section Design */
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: left;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .result-card {
+            background: #ffffff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #edf2f7;
+            text-align: left;
+        }
+
+        .result-card.cost-card {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .result-card .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .result-card .value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .result-card.cost-card .value {
+            color: var(--success-color);
+            font-size: 20px;
+        }
+
+        .note {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Footer Style */
+        footer {
+            margin-top: 35px;
+            color: #94a3b8;
+            font-size: 13px;
+            z-index: 1;
+            text-align: center;
+        }
+
+        footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header / Title Bar -->
+<header>
+    <div class="header-container">
+        <div class="logo-container">
+            <button class="menu-btn" onclick="toggleDrawer()">&#9776;</button>
+            <div class="logo">
+                KR<span>PROJECTS</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="badge">Engineering Tools</div>
+        </div>
+    </div>
+</header>
+
+<!-- Side Drawer Menu -->
+<div class="drawer" id="sideDrawer">
+    <a href="index.html">මුල් පිටුව</a>
+    <a href="About.html">අප පිළිබඳව</a>
+    <a href="Contact.html">විමසීම්</a>
+    <a href="https://wa.me/" target="_blank">Whatsapp</a>
+    <a href="https://facebook.com" target="_blank">Facebook</a>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
+
+<div class="card">
+    <div class="header-card">
+        <h2> සිවිලින් සහ බෝට් මිල ගණනය කරනය</h2>
+        <p>Ceiling & Wall Angle Cost Calculator</p>
+    </div>
+
+    <!-- 1. කාමරයේ දිග සහ පළල -->
+    <div class="input-group">
+        <label>කාමරයේ දිග සහ පළල:</label>
+        <div class="input-flex">
+            <input type="number" id="roomLength" placeholder="දිග (Length)" step="any">
+            <input type="number" id="roomWidth" placeholder="පළල (Width)" step="any">
+        </div>
+    </div>
+
+    <!-- 2. මිනුම් ඒකකය -->
+    <div class="input-group">
+        <label>මිනුම් ඒකකය (Unit):</label>
+        <select id="unitSelect">
+            <option value="feet">අඩි (Feet)</option>
+            <option value="meters">මීටර් (Meters)</option>
+        </select>
+    </div>
+
+    <!-- 3. සිවිලින් බෝඩ් එකක ප්‍රමාණය -->
+    <div class="input-group">
+        <label>සිවිලින් බෝඩ් එකක ප්‍රමාණය (Board Size):</label>
+        <select id="boardSize" onchange="toggleCustomBoard()">
+            <option value="2x2">අඩි 2 × අඩි 2 (2ft x 2ft Tile)</option>
+            <option value="2x4">අඩි 2 × අඩි 4 (2ft x 4ft Panel)</option>
+            <option value="custom">වෙනත් ප්‍රමාණයක් (Custom Size)</option>
+        </select>
+    </div>
+
+    <!-- වෙනත් ප්‍රමාණ සඳහා Custom inputs -->
+    <div class="input-group" id="customBoardDiv" style="display: none;">
+        <label>බෝඩ් එකේ දිග සහ පළල (අඩි වලින්):</label>
+        <div class="input-flex">
+            <input type="number" id="boardLength" placeholder="දිග (අඩි)" value="2" step="any">
+            <input type="number" id="boardWidth" placeholder="පළල (අඩි)" value="2" step="any">
+        </div>
+    </div>
+
+    <!-- 4. මිල ගණන් ඇතුළත් කිරීම (Optional) -->
+    <div class="input-group">
+        <label>එක සිවිලින් බෝඩ් එකක මිල (Rs.):</label>
+        <input type="number" id="boardUnitPrice" placeholder="උදා: 450" step="any">
+    </div>
+
+    <div class="input-group">
+        <label>එක වෝල් ඇන්ගල් බෝට් එකක මිල (Rs. - අඩි 10):</label>
+        <input type="number" id="angleUnitPrice" placeholder="උදා: 600" step="any">
+    </div>
+
+    <button class="calc-btn" onclick="calculateCeiling()">ගණනය කරන්න (Calculate)</button>
+
+    <!-- ප්‍රතිඵල පෙන්වන ස්ථානය -->
+    <div id="results" class="result-box">
+        <div class="result-grid">
+            <div class="result-card">
+                <div class="label">මුළු වර්ග ප්‍රමාණය (Total Area)</div>
+                <div class="value" id="resArea">0.00 Sqft</div>
+            </div>
+
+            <div class="result-card">
+                <div class="label">අවශ්‍ය සිවිලින් බෝඩ් ගණන (අපතේ යාම් සමඟ)</div>
+                <div class="value" id="resFullPanels">0 ක්</div>
+            </div>
+
+            <div class="result-card">
+                <div class="label">දාරවල කැපීම් විස්තරය (Cut Pieces)</div>
+                <div class="value" id="resCutPieces" style="font-size: 13px; font-weight: 500;">-</div>
+            </div>
+
+            <div class="result-card">
+                <div class="label">වෝල් ඇන්ගල් බෝට් අවශ්‍ය ප්‍රමාණය (අඩි 10 බැගින්)</div>
+                <div class="value" id="resWallAngles">0 ක්</div>
+            </div>
+
+            <div class="result-card cost-card" id="costCard" style="display: none;">
+                <div class="label">සිවිලින් සහ බෝට් සඳහා යන මුළු ඇස්තමේන්තුගත වියදම</div>
+                <div class="value" id="totalCost">Rs. 0.00</div>
+            </div>
+        </div>
+        <div class="note">
+            * දාරවල කපා දැමීමට සිදුවන කොටස් සහ 10% අපතේ යාම් (Wastage) මෙහිදී සලකා බලා ඇත.
+        </div>
+    </div>
+</div>
+
+<!-- Footer සෙක්ෂන් එක -->
+<footer>
+    <p>krprojects Development<br>© 2026</p>
+    <p style="margin-top:8px;">
+        <a href="About.html">ABOUT US</a> | 
+        <a href="#">PRIVACY POLICY</a>
+    </p>
+</footer>
+
+<script>
+    function toggleDrawer() {
+        document.getElementById('sideDrawer').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function toggleCustomBoard() {
+        let size = document.getElementById('boardSize').value;
+        let customDiv = document.getElementById('customBoardDiv');
+        if (size === 'custom') {
+            customDiv.style.display = 'block';
+        } else {
+            customDiv.style.display = 'none';
+        }
+    }
+
+    function calculateCeiling() {
+        let length = parseFloat(document.getElementById('roomLength').value);
+        let width = parseFloat(document.getElementById('roomWidth').value);
+        let unit = document.getElementById('unitSelect').value;
+
+        if (isNaN(length) || isNaN(width) || length <= 0 || width <= 0) {
+            alert("කරුණාකර නිවැරදි දිග සහ පළල ඇතුළත් කරන්න!");
+            return;
+        }
+
+        // මීටර් වලින් ඇත්නම් අඩි වලට හරවා ගැනීම
+        if (unit === 'meters') {
+            length = length * 3.28084;
+            width = width * 3.28084;
+        }
+
+        // බෝඩ් ප්‍රමාණය තෝරා ගැනීම
+        let boardSizeOption = document.getElementById('boardSize').value;
+        let bLength = 2, bWidth = 2;
+
+        if (boardSizeOption === '2x2') {
+            bLength = 2; bWidth = 2;
+        } else if (boardSizeOption === '2x4') {
+            bLength = 4; bWidth = 2;
+        } else {
+            bLength = parseFloat(document.getElementById('boardLength').value);
+            bWidth = parseFloat(document.getElementById('boardWidth').value);
+            if (isNaN(bLength) || isNaN(bWidth) || bLength <= 0 || bWidth <= 0) {
+                alert("කරුණාකර නිවැරදි බෝඩ් ප්‍රමාණයක් ඇතුළත් කරන්න!");
+                return;
+            }
+        }
+
+        let sqft = length * width;
+        let perimeter = 2 * (length + width);
+
+        // පේළි දිගේ බෝඩ් සංඛ්‍යාව ගණනය කිරීම
+        let boardsAlongLength = Math.ceil(length / bLength);
+        let boardsAlongWidth = Math.ceil(width / bWidth);
+        let totalFullGrids = boardsAlongLength * boardsAlongWidth;
+
+        // දාරවල කැබලි (Cut pieces) ප්‍රමාණයන් ගණනය කිරීම
+        let exactCols = length / bLength;
+        let exactRows = width / bWidth;
+        
+        let fractionalCol = exactCols % 1;
+        let fractionalRow = exactRows % 1;
+
+        let cutInfoText = "සම්පූර්ණ බෝඩ් වලින් වැසී යයි.";
+        if (fractionalCol > 0 || fractionalRow > 0) {
+            let cutWidthRem = fractionalCol > 0 ? (bLength * fractionalCol).toFixed(1) : 0;
+            let cutHeightRem = fractionalRow > 0 ? (bWidth * fractionalRow).toFixed(1) : 0;
+            cutInfoText = `දිග: අඩි ${cutWidthRem} | පළල: අඩි ${cutHeightRem} කැබලි පේළි අවශ්‍ය වේ.`;
+        }
+
+        // 10% අපතේ යාම් සමඟ සම්පූර්ණ බෝඩ් ප්‍රමාණය
+        let finalBoardCount = Math.ceil(totalFullGrids * 1.10);
+
+        // බෝට් ගණනය
+        let wallAngleCount = Math.ceil((perimeter / 10) * 1.10);
+
+        // ප්‍රතිඵල පෙන්වීම
+        document.getElementById('resArea').innerText = sqft.toFixed(2) + " වර්ග අඩි (Sqft)";
+        document.getElementById('resFullPanels').innerText = finalBoardCount + " ක් (Grid: " + totalFullGrids + ")";
+        document.getElementById('resCutPieces').innerText = cutInfoText;
+        document.getElementById('resWallAngles').innerText = wallAngleCount + " ක්";
+
+        // මිල ගණන් ගණනය කිරීම
+        let boardUnitPrice = parseFloat(document.getElementById('boardUnitPrice').value) || 0;
+        let angleUnitPrice = parseFloat(document.getElementById('angleUnitPrice').value) || 0;
+        let costCard = document.getElementById('costCard');
+
+        if (boardUnitPrice > 0 || angleUnitPrice > 0) {
+            let totalBoardCost = finalBoardCount * boardUnitPrice;
+            let totalAngleCost = wallAngleCount * angleUnitPrice;
+            let grandTotal = totalBoardCost + totalAngleCost;
+
+            let formattedCost = grandTotal.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            document.getElementById('totalCost').innerText = "Rs. " + formattedCost;
+            costCard.style.display = "block";
+        } else {
+            costCard.style.display = "none";
+        }
+
+        document.getElementById('results').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
